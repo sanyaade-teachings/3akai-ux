@@ -49,8 +49,6 @@ var paths = {
   'oae.api.widget'           : 'shared/oae/api/oae.api.widget',
   'oae.bootstrap'            : 'shared/oae/api/oae.bootstrap',
   'oae.core'                 : 'shared/oae/api/oae.core',
-  /* l10n and i18n resources */
-  'globalize.culture.tdd'    : 'tests/mocked/helpers/globalize.culture.tdd',
   /* required templates */
   'activity'                 : 'shared/oae/macros/activity',
   'list'                     : 'shared/oae/macros/list',
@@ -63,9 +61,8 @@ var paths = {
   'chai-jquery'              : 'tests/mocked/libs/chai-jquery',
   /* code used for testing */
   'widget'                   : 'tests/mocked/helpers/widget',
-  'server'                   : 'tests/mocked/helpers/server',
+  'server'                   : 'tests/mocked/helpers/server'
   /* standard core widgets here */
-  'footer'                   : 'node_modules/oae-core/footer'
 };
 
 // Now we can look for query string parameters and
@@ -109,7 +106,7 @@ require(['require', 'chai', 'sinon-chai', 'chai-jquery', 'mocha', 'sinon', 'jque
   // we want to test. Otherwise we'll just test a preconfigured set.
   // The first step is parsing the query string.
   var underTest = widget ? [widget] : [
-    'footer'
+    // List of widgets for which mocked unit tests are available goes here
   ];
 
   // Now convert the simple array of widgets under test into
@@ -117,7 +114,7 @@ require(['require', 'chai', 'sinon-chai', 'chai-jquery', 'mocha', 'sinon', 'jque
   underTest = underTest.map(function(test){
     return test+'/mock/'+test;
   })
- 
+console.log(underTest);
   require(underTest, function(require) {
 
     // When `mocha.run()` exexutes, it immediately

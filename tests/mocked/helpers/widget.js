@@ -198,6 +198,11 @@ define(['require', 'server'], function(require, server){
       deferred.resolve(files.map(function(file, idx) {
         return {path: files[idx].path, content: contents[idx]};
       }));
+    },function(){
+
+      // If there was an error in retrieving the files,
+      // resolve the deferred accordingly.
+      deferred.reject();
     })
   }
 
@@ -290,7 +295,7 @@ define(['require', 'server'], function(require, server){
     // Note that we have to handle requests for macros
     // explicitly. See note on `_getMacro()` method above.
     server
-      .mock({ method: 'GET', url: MACRO_REGEXP, response: _getMacro })
+//      .mock({ method: 'GET', url: MACRO_REGEXP, response: _getMacro })
       .user('basic')
       .start();
 
@@ -307,7 +312,7 @@ define(['require', 'server'], function(require, server){
 
     // Go ahead and request the manifest file.
     _manifestLoading = $.ajax(_manifestPath);
-    
+
     // And once that's done go to the next step.
     _manifestLoading.done(_manifestLoaded);
 
@@ -402,8 +407,9 @@ define(['require', 'server'], function(require, server){
     _cssLoading.done(_cssLoaded);
     _jsLoading.done(_jsLoaded);
     
-    // That's it; return what we found.
-    $.when(_cssLoading, _jsLoading).then(_widgetLoaded);
+    // That's it; return what we found (even if there
+    // was an error).
+    $.when(_cssLoading, _jsLoading).then(_widgetLoaded, _widgetLoaded);
   }
 
   // ## Step 7: Handle retrieved CSS content
