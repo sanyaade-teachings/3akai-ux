@@ -28,7 +28,7 @@ define(['require', 'sinon'],function(require){
       name: 'basic',
       mocks: [
         { method: 'GET', url: '/api/me',         response: [ 200, {'Content-Type': 'application/json'}, '{}' ] },
-        { method: 'GET', url: '/api/config',     response: [ 200, {'Content-Type': 'application/json'}, '{"oae-principals":{"user":{"defaultLanguage":"tdd"}}}' ] },
+        { method: 'GET', url: '/api/config',     response: [ 200, {'Content-Type': 'application/json'}, '{"oae-principals":{"user":{"defaultLanguage":"debug"}}}' ] },
         { method: 'GET', url: '/api/ui/widgets', response: [ 200, {'Content-Type': 'application/json'}, '{}' ] }
       ]
     }
