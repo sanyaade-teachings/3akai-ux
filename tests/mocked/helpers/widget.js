@@ -126,7 +126,7 @@ define(['require', 'server'], function(require, server){
       _onload,               // Callback function when widget is ready
       _config,               // Requirejs configuration
       _manifestPath,         // URL for the widget's manifest.json file
-      _manifest = {},        // The widget's actual manifest
+      _manifest,             // The widget's actual manifest
       _htmlPath,             // URL for the widget's template
       _html = '',            // The HTML template for the manifest
       _cssStyleSheets = [],  // Any CSS style sheets referenced by the template
@@ -147,9 +147,6 @@ define(['require', 'server'], function(require, server){
   var CSS_REGEXP_STR = '<link.*rel=[",\']stylesheet.*href=[",\'](.*)[",\'].*\\s\/>',
       JS_REGEXP_STR  = '<script\\s.*src=[",\'](.*)[",\'].*</script>';
 
-  // Regular express for absolute path to static HTML macros.
-  var MACRO_REGEXP = /^\/shared\/oae\/macros\//i;
-  
   // Private methods and functions
   // -----------------------------
 
@@ -206,35 +203,6 @@ define(['require', 'server'], function(require, server){
     })
   }
 
-  // Get a macro file.
-  var _getMacro = function(req) {
-
-    // Various components reference the UI macros with an
-    // absolute URL rather than a relative one. When requirejs
-    // sees an absolute URL, it doesn't check its config
-    // for a potential remapping. That's a problem for
-    // unit testing, since the project will probably not
-    // be located in the root of the file system or domain.
-    // We'll have to intercept these requests and turn them
-    // into relative URLs so the requirejs mapping will kick
-    // in and find the files for us.
-    var macro = req.url.replace(MACRO_REGEXP, ''),
-        url = _parentRequire.toUrl(macro);
-
-    // For now, we'll just return an empty response.
-    // Obviously that won't work long-term, but the
-    // commented-out code below doesn't quite work.
-    req.respond(200, {'Content-Type': 'text/html'}, '')
-
-    // $.ajax(url)
-    //   .success(function(data) {
-    //     req.respond(200, {'Content-Type': 'text/html'}, data)
-    //   })
-    //   .error(function(xhr) {
-    //     req.respond(404, {}, '')
-    //   });
-  }
-  
   // Helper function to load widget assets on page
   var _loadWidget = function() {
 
@@ -291,11 +259,7 @@ define(['require', 'server'], function(require, server){
     // API calls. If we're not ready to mock those calls,
     // they'll fail, and our widget test code won't be
     // happy.
-    //
-    // Note that we have to handle requests for macros
-    // explicitly. See note on `_getMacro()` method above.
     server
-//      .mock({ method: 'GET', url: MACRO_REGEXP, response: _getMacro })
       .user('basic')
       .start();
 
@@ -317,7 +281,7 @@ define(['require', 'server'], function(require, server){
     _manifestLoading.done(_manifestLoaded);
 
     // If we can't get a manifest, return empty-handed.
-    _manifestLoading.fail(_widgetLoaded)
+    _manifestLoading.fail(_manifestFailed)
   }
 
   // ## Step 3: Process a manifest retrieved from the server
@@ -327,11 +291,34 @@ define(['require', 'server'], function(require, server){
     // in a text string (if loaded from the local file
     // system) or it may already be converted to a JSON
     // object.
+
     _manifest = (typeof manifestData === 'string') ?
                   JSON.parse(manifestData) : manifestData;
 
     // Once we have the manifest, we can get the HTML.
     _loadHtml();
+  }
+
+  // ## Step 3b: Handle an error retrieving the manifest
+  var _manifestFailed = function(rsp) {
+
+    // As of version 1.9, jQuery considers an empty
+    // response to be an error (even if the status is
+    // 200). That's technically correct, but we want
+    // to distinquish between empty responses and other
+    // errors to help make diagnosing test failures
+    // easier. So we'll check for that case below.
+    if (rsp.status === 200) {
+      // If the response was okay, but jQuery still
+      // triggered an error, then it was unable to parse
+      // the response as valid JSON. Before we bail,
+      // we can set the manifest to an empty object.
+      _manifest = {};
+    }
+
+    // In any case, at this point we've done all
+    // we can do.
+    _widgetLoaded();
   }
 
   // ## Step 4: Get the HTML template
