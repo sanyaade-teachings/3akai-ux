@@ -129,8 +129,10 @@ define(['require', 'server'], function(require, server){
       _manifest,             // The widget's actual manifest
       _htmlPath,             // URL for the widget's template
       _html = '',            // The HTML template for the manifest
+      _rawHtml = '',         // Unmodified HTML
       _cssStyleSheets = [],  // Any CSS style sheets referenced by the template
       _jsScripts = [],       // Any external JavaScript files referenced by the template
+      _jsFiles = [],         // External JavaScript files as raw files
       _container,            // Inserted `<div>` element to hold widget contents
       _styles = [];          // Inserted styles
 
@@ -138,7 +140,8 @@ define(['require', 'server'], function(require, server){
   var _manifestLoading,
       _htmlLoading,
       _cssLoading,
-      _jsLoading;
+      _jsLoading,
+      _jsFileLoading;
 
   // Regular expressions to extract style sheets and script files
   // from HTML content. These aren't especially fancy, so if widget
@@ -378,7 +381,7 @@ define(['require', 'server'], function(require, server){
 
   // ## Step 5: Process a loaded HTML template
   var _htmlLoaded = function(html) {
-    _html = html;
+    _rawHtml = _html = html;
 
     // Now get the remaining assets
     _loadAssets();
@@ -394,7 +397,7 @@ define(['require', 'server'], function(require, server){
     _html = _stripFileNames(_html, CSS_REGEXP_STR);
     
     // Same thing, except for JavaScript files.
-    _jsScripts = _getFileNames(_html, JS_REGEXP_STR);
+    _jsScripts = _jsFiles = _getFileNames(_html, JS_REGEXP_STR);
     _html = _stripFileNames(_html, JS_REGEXP_STR);
 
     // Now that we've identified the style sheets and
@@ -402,7 +405,8 @@ define(['require', 'server'], function(require, server){
     // set up a couple of `$.Deferred` objects to track
     // when the files are available.
     _cssLoading = $.Deferred(),
-    _jsLoading = $.Deferred();
+    _jsLoading = $.Deferred(),
+    _jsFileLoading = $.Deferred();
 
     // To retrieve the files, map the array of simple
     // filenames into the correct require.js path and
@@ -415,7 +419,7 @@ define(['require', 'server'], function(require, server){
       };
     }), _cssLoading);
     
-    // JavaScript files need a different requirejs
+    // JavaScript libraries need a different requirejs
     // path.
     _retrieveFiles(_jsScripts.map(function(js) {
       return {
@@ -423,14 +427,23 @@ define(['require', 'server'], function(require, server){
         requirePath: _moduleName + '/' + js.replace(/.js$/, '')
       };
     }), _jsLoading);
+
+    // JavaScript files are loaded as text.
+    _retrieveFiles(_jsFiles.map(function(js) {
+      return {
+        path: js,
+        requirePath: 'text!' + _moduleName + '/' + js
+      };
+    }), _jsFileLoading);
     
     // The `$.Deferred` resolutions update our data.
     _cssLoading.done(_cssLoaded);
     _jsLoading.done(_jsLoaded);
+    _jsFileLoading.done(_jsFileLoaded);
     
     // That's it; return what we found (even if there
     // was an error).
-    $.when(_cssLoading, _jsLoading).then(_widgetLoaded, _widgetLoaded);
+    $.when(_cssLoading, _jsLoading, _jsFileLoading).then(_widgetLoaded, _widgetLoaded);
   }
 
   // ## Step 7: Handle retrieved CSS content
@@ -442,15 +455,22 @@ define(['require', 'server'], function(require, server){
   var _jsLoaded = function(newJs) {
     _jsScripts = newJs;
   }
-
-  // ## Step 9: Complete the loading process
+  
+  // ## Step 8: Handle retrieved JavaScript files
+  var _jsFileLoaded = function(newJs) {
+    _jsFiles = newJs;
+  }
+  
+  // ## Step 10: Complete the loading process
   var _widgetLoaded = function() {
     // We can now tell requirejs that we're done.
     _onload({
       manifest:       _manifest,
+      rawHtml:        _rawHtml,
       html:           _html,
       cssStyleSheets: _cssStyleSheets,
       jsScripts:      _jsScripts,
+      jsFiles:        _jsFiles,
       clear:   function()  { server.clear().user('basic'); return this;},
       mock:    function(m) { server.mock(m); return this;},
       restart: function()  { server.start; return this;},
