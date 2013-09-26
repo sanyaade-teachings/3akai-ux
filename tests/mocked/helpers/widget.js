@@ -147,6 +147,11 @@ define(['require', 'server'], function(require, server){
   var CSS_REGEXP_STR = '<link.*rel=[",\']stylesheet.*href=[",\'](.*)[",\'].*\\s\/>',
       JS_REGEXP_STR  = '<script\\s.*src=[",\'](.*)[",\'].*</script>';
 
+  // Regular express for absolute path to static HTML macros. We only
+  // need this when running unit tests from the local file system.
+  // See `._getMacro()` below for more details.
+  var MACRO_REGEXP = /^\/shared\/oae\/macros\//i;
+
   // Private methods and functions
   // -----------------------------
 
@@ -201,6 +206,30 @@ define(['require', 'server'], function(require, server){
       // resolve the deferred accordingly.
       deferred.reject();
     })
+  }
+
+  // Get a macro file.
+  var _getMacro = function(req) {
+  
+    // Various components reference the UI macros with an
+    // absolute URL rather than a relative one. When requirejs
+    // sees an absolute URL, it doesn't check its config
+    // for a potential remapping. That's a problem for
+    // unit testing, since the project will probably not
+    // be located in the root of the file system or domain.
+    // We'll have to intercept these requests and turn them
+    // into relative URLs so the requirejs mapping will kick
+    // in and find the files for us.
+    var macro = req.url.replace(MACRO_REGEXP, ''),
+        url = _parentRequire.toUrl(macro);
+  
+    $.ajax(url)
+      .success(function(data) {
+        req.respond(200, {'Content-Type': 'text/html'}, data)
+      })
+      .error(function(xhr) {
+        req.respond(404, {}, '')
+      });
   }
 
   // Helper function to load widget assets on page
@@ -259,8 +288,13 @@ define(['require', 'server'], function(require, server){
     // API calls. If we're not ready to mock those calls,
     // they'll fail, and our widget test code won't be
     // happy.
+    //
+    // The (currently) commented-out line below is only
+    // needed for running tests from the local file
+    // system. See `.getMacro()` above for details.
     server
       .user('basic')
+//      .mock({ method: 'GET', url: MACRO_REGEXP, response: _getMacro })
       .start();
 
     // Now that's in place, we can start loading the widget.
