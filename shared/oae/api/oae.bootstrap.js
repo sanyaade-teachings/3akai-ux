@@ -49,6 +49,8 @@ requirejs.config({
         'trimpath': 'vendor/js/trimpath',
         'underscore': 'vendor/js/underscore',
 
+//      'cultures' : 'vendor/js/l10n/cultures',
+
         // OAE paths
         'bootstrap.modal': 'oae/js/bootstrap-plugins/bootstrap.modal',
         'jquery.browse-focus': 'oae/js/jquery-plugins/jquery.browse-focus',

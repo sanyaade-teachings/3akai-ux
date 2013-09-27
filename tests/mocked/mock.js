@@ -74,6 +74,8 @@
     'oae.api.widget'           : 'shared/oae/api/oae.api.widget',
     'oae.bootstrap'            : 'shared/oae/api/oae.bootstrap',
     'oae.core'                 : 'shared/oae/api/oae.core',
+    /* l10n resources */
+    'cultures'                 : 'shared/vendor/js/l10n/cultures',
     /* required templates */
     'activity'                 : 'shared/oae/macros/activity',
     'list'                     : 'shared/oae/macros/list',
@@ -95,7 +97,14 @@
   // widgets we're testing.
 
   var match = /[?&]widget=([^&]*)/.exec(window.location.search);
-  widget = match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+  widget = match && decodeURIComponent(match[1]);
+  if (!widget) {
+    // If we didn't find a specific widget in the URL query string,
+    // look in the user agent. (Sorry, but it seems to be the only
+    // way to pass parameters from grunt all the way to phantomjs.)
+    match = window.navigator.userAgent.match(/widget=([^&]*)/);
+    widget = match && match[1];
+  }
   if (widget) {
     paths[widget] = 'node_modules/oae-core/'+widget;
   }
@@ -143,18 +152,29 @@ require(['require', 'chai', 'sinon-chai', 'chai-jquery', 'mocha', 'sinon', 'jque
 
   require(underTest, function(require) {
 
-    // When `mocha.run()` exexutes, it immediately
-    // returns an object that will eventually capture
-    // the test results. The parameter is a callback
-    // function that executes once the tests are
-    // complete.
-    var tests = mocha.run(function(){
-      
-      // Now that our tests are done, update the browser
-      // title bar with the results.
-      var stats = tests ? tests.stats : {passes: 0, pending: 0, failures: 0};
-      document.title = stats.passes + '/' + (stats.passes+stats.pending+stats.failures);
-    });
+    // We can run tests either from the command line or
+    // in a browser. For command line testing we use
+    // mocha-phantomjs. The starting command is different
+    // in either case, so we need to check now to see
+    // which to use.
+    if (window.mochaPhantomJS) {
+
+      mochaPhantomJS.run();
+
+    } else {
+      // When `mocha.run()` exexutes, it immediately
+      // returns an object that will eventually capture
+      // the test results. The parameter is a callback
+      // function that executes once the tests are
+      // complete.
+      var tests = mocha.run(function(){
+        
+        // Now that our tests are done, update the browser
+        // title bar with the results.
+        var stats = tests ? tests.stats : {passes: 0, pending: 0, failures: 0};
+        document.title = stats.passes + '/' + (stats.passes+stats.pending+stats.failures);
+      });
+    }
   });
 
 });

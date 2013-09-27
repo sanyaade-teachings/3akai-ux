@@ -381,6 +381,7 @@ define(['require', 'server'], function(require, server){
 
   // ## Step 5: Process a loaded HTML template
   var _htmlLoaded = function(html) {
+    // Keep a copy of the content returned
     _rawHtml = _html = html;
 
     // Now get the remaining assets
