@@ -88,7 +88,9 @@
     'chai-jquery'              : 'tests/mocked/libs/chai-jquery',
     /* code used for testing */
     'widget'                   : 'tests/mocked/helpers/widget',
-    'server'                   : 'tests/mocked/helpers/server'
+    'server'                   : 'tests/mocked/helpers/server',
+    'cssformat'                : 'tests/mocked/helpers/cssformat',
+    'jsformat'                 : 'tests/mocked/helpers/jsformat'
     /* standard core widgets here */
   };
   
