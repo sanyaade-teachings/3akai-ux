@@ -47,6 +47,9 @@
 //   code without worrying about triggering the loading of
 //   external resources.) If no HTML template could be found,
 //   this property will be an empty string.
+// * `.rawHtml`: The HTML template (as above), but with
+//   external CSS style sheets and JavaScript file references
+//   preserved.
 // * `.cssStyleSheets`: An array of objects representing any
 //   external CSS style sheets referenced by the HTML template.
 //   Objects in the array will have a `.path` property which
@@ -59,6 +62,9 @@
 //   contains the URL and a `.content` property which contains
 //   the JavaScript itself. If no external JavaScript files are
 //   identified, this array will be empty.
+// * `.jsFiles`: As above, but with the JavaScript file content
+//   in the form of a string rather than evaluated code.
+//   (Useful, e.g., for checking style formatting.)
 //
 // In addition, there are methods to control the mocked API
 // functionality. The first is `.mock()`, which mocks a specific
@@ -80,7 +86,7 @@
 // a known state. It returns the widget object itself so that it
 // may be chained.
 //
-// The final method is `.restart()`, which restarts the mocking
+// The third method is `.restart()`, which restarts the mocking
 // server. It should be called after all mocks are in place.
 //
 // A scenario for using these methods might look like:
@@ -102,6 +108,26 @@
 // After executing the code above, the server will be prepared
 // to respond to the indicated API requests with the defined
 // data.
+//
+// The `.mocks()` method returns an array of existing mocks.
+//
+// At a higher level, widget objects also support the
+// `.users()` and `.user()` methods. These methods establish a
+// predefined set of mocks based on the user (or persona). The
+// `.users()` method returns an array of predefined users, and
+// the `.user()` method gets or sets the current user. If
+// predefined users are combined with custom mocks, the mocks
+// should be added after the user is defined, as in:
+//
+//     var w = require('widget!example');
+//     w.clear()
+//       .user('basic')
+//       .mock({
+//         method:   'GET',
+//         url:      '/api/ex1',
+//         response: [200, {'Content-Type': 'application/json'}, '{"prop1":"value1"}']
+//       })
+//       .restart();
 //
 // There are methods to load and unload the widget content in the
 // page. They can be called at the start and end of each test.
@@ -252,13 +278,24 @@ define(['require', 'server'], function(require, server){
 
     container.innerHTML = _html;
 
-    if (_cssStyleSheets.length > _styles.length) {
+    // And look for an existing place to stuff
+    // CSS styles.
+    var styles = document.getElementById('widget-style');
+
+    if (styles) {
+      styles.innerHTML = '';
       _cssStyleSheets.forEach(function(sheet){
-        var style = document.createElement('style');
-        style.innerHTML = sheet.content;
-        document.body.appendChild(style);
-        _styles.push(style);
+        styles.innerHTML += sheet.content;
       })
+    } else {
+      if (_cssStyleSheets.length > _styles.length) {
+        _cssStyleSheets.forEach(function(sheet){
+          var style = document.createElement('style');
+          style.innerHTML = sheet.content;
+          document.body.appendChild(style);
+          _styles.push(style);
+        })
+      }
     }
     
     _jsScripts.forEach(function(js) {
@@ -271,10 +308,15 @@ define(['require', 'server'], function(require, server){
     if (_container) {
       _container.parentNode.removeChild(_container);
       _container = null;
+    }
+    var styles = document.getElementById('widget-style');
+    if (styles) {
+      styles.innerHTML = '';
+    } else {
       _styles.forEach(function(style){
         style.parentNode.removeChild(style);
       })
-      _styles = [];
+      _styles = [];      
     }
   }
 
@@ -472,9 +514,16 @@ define(['require', 'server'], function(require, server){
       cssStyleSheets: _cssStyleSheets,
       jsScripts:      _jsScripts,
       jsFiles:        _jsFiles,
-      clear:   function()  { server.clear().user('basic'); return this;},
-      mock:    function(m) { server.mock(m); return this;},
-      restart: function()  { server.start; return this;},
+      clear:   function()  { server.clear(); return this; },
+      mock:    function(m) { server.mock(m); return this; },
+      restart: function()  { server.start(); return this; },
+      mocks:   function()  { return server.mocks(); },
+      users:   function()  { return server.users(); },
+      user:    function(u) {
+                 if (!arguments.length) return server.user();
+                 server.user(u);
+                 return this;
+               },
       load:   _loadWidget,
       unload: _unloadWidget
     })

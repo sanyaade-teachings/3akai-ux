@@ -1,0 +1,70 @@
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <title>OAE Widget Development</title>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="../../shared/oae/css/oae.core.css"/>
+    <style id="widget-style"></style>
+  </head>
+  <body style="display:block">
+    <div class='row'>
+      <h3>Widget Under Test:<button id="reload" class="pull-right btn btn-small"><i class="icon-repeat" style="font-size:1.2em;"></i></button></h3>
+      <div id="widget-container"></div>
+    </div>
+    <hr/>
+    <div class='row'>
+      <div class="well well-large" id="dev-controls"></div>
+    </div>
+    <script id='template' type='text/ractive'>
+        <h3>API Mocks:</h3>
+        <table class='table'>
+          <thead>
+            <tr>
+              <th>Method</th>
+              <th>URL</th>
+              <th>Response</th>
+              <th>Headers</th>
+              <th>Content</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#mocks:idx}}
+              <tr>
+                <td>{{method}}</td>
+                <td>{{url}}</td>
+                <td>{{response[0]}}</td>
+                <td>{{JSON.stringify(response[1])}}</td>
+                <td>{{response[2]}}</td>
+                <td><button type="button" class="btn btn-danger" on-click='remove'>Delete</button></td>
+              </tr>
+            {{/mocks}}
+          </tbody>
+        </table>
+        <form>
+          {{#editing}}
+          <label>Method:</label>
+          <select value='{{method}}'>
+          {{#methods}}
+            <option value='{{.}}'>{{.}}</option>
+          {{/methods}}
+          </select>
+          <label>URL:</label>
+          <input type="text" class="span8" placeholder="URL to mock…" value="{{url}}">
+          <label>Response Status Code:</label>
+          <input type="text" placeholder="Number…" value="{{status}}">
+          <label>Response Headers:</label>
+          <textarea rows="3" class="span8" value="{{headers}}"></textarea>
+          <label>Response Data:</label>
+          <textarea rows="6" class="span8" value="{{response}}"></textarea>
+          <div class="clearfix"></div>
+          <button type="button" class="btn btn-default" on-click='cancel'>Cancel</button>
+          <button type="button" class="btn btn-primary" on-click='add'>Add Mock</button>
+          {{/editing}}
+          {{^editing}}<button type="button" class="btn btn-default" on-click='new'>New Mock</button>{{/editing}}
+          {{^editing}}{{#dirty}}<button type="button" class="btn btn-primary" on-click='update'>Update Server</button>{{/dirty}}{{/editing}}
+        </form>
+    </script>
+    <script data-main="dev.js" src="../../shared/vendor/js/requirejs/require-jquery.js"></script>
+   </body>
+</html>

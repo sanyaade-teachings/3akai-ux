@@ -172,6 +172,14 @@ define(['require', 'sinon'],function(require){
     clear: function() {
       _mocks = [];
       return this;
+    },
+    users: function() {
+      // return a deep cloned copy to avoid side effects
+      return USERS.map(function(u){return $.extend(true, {}, u);});
+    },
+    mocks: function() {
+      // return a deep cloned copy to avoid side effects
+      return _mocks.map(function(m){return $.extend(true, {}, m);});
     }
   };
 });
