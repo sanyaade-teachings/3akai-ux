@@ -16,7 +16,21 @@
       <div class="well well-large" id="dev-controls"></div>
     </div>
     <script id='template' type='text/ractive'>
-        <h3>API Mocks:</h3>
+        <h3>API Mocks:
+          <span class="pull-right">
+            <button on-click="store" class="btn btn-small" title="Save Mocks to Local Storage">
+              <i class="icon-download-alt" style="font-size:1.2em;"></i>
+            </button>
+            {{#saved}}
+            <button on-click="load" class="btn btn-small" title="Load Mocks from Local Storage">
+              <i class="icon-upload-alt" style="font-size:1.2em;"></i>
+            </button>
+            <button on-click="clear" class="btn btn-small" title="Clear Mocks in Local Storage">
+              <i class="icon-remove" style="font-size:1.2em;"></i>
+            </button>
+            {{/saved}}
+          </span>
+        </h3>
         <table class='table'>
           <thead>
             <tr>

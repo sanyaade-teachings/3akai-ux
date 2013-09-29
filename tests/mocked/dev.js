@@ -155,6 +155,7 @@ require(['widget!' + widget, 'Ractive'], function(widget, Ractive){
   });
   
   ractive.set('mocks', widget.mocks());
+  if (localStorage.getItem('mocks')) { ractive.set('saved',true); }
 
   ractive.on({
     remove: function(evt){
@@ -189,7 +190,7 @@ require(['widget!' + widget, 'Ractive'], function(widget, Ractive){
         editing: false
       })
     },
-    update: function () {
+    update: function(){
       var mocks = this.get('mocks');
       widget.clear();
       mocks.forEach(function(m){
@@ -197,6 +198,18 @@ require(['widget!' + widget, 'Ractive'], function(widget, Ractive){
       })
       widget.restart();
       this.set('dirty', false);
+    },
+    store: function(){
+      localStorage.setItem('mocks',JSON.stringify(this.get('mocks')));
+      this.set('saved',true);
+    },
+    load: function(){
+      this.set('mocks',JSON.parse(localStorage.getItem('mocks')));
+      this.set('dirty',true);
+    },
+    clear: function(){
+      localStorage.removeItem('mocks');
+      this.set('saved',false);
     }
   });
 
