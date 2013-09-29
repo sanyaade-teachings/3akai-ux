@@ -77,19 +77,19 @@ define(['require', 'sinon'],function(require){
 
       // Return `false` if there is no matching mock.
       return !_mocks.some(function(m){
+
         // First check. The method has to match.
         if (method.toUpperCase() !== m.method.toUpperCase()) {
           return false;
         }
         // Second check. Simple string match.
-        if ((typeof m.url === 'string') &&
-            (url.toUpperCase() !== m.url.toUpperCase())) {
-          return false;
+        if (typeof m.url === 'string') {
+          return (url.toUpperCase() === m.url.toUpperCase());
         }
-
         // Final check. RegExp match.
         return url.match(m.url);
       })
+
     });
 
     // When a mock is available, we want sinon to respond
