@@ -17,7 +17,7 @@
 // development and testing. It can be loaded as a RequireJS
 // module in a browser, e.g.
 //
-//     <script data-main="mock.js" src="require-jquery.js"></script>
+//     <script data-main='dev.js' src='require-jquery.js'></script>
 
 // Handle the preliminary setup within a closure to avoid messing
 // with the global name space.
@@ -154,7 +154,9 @@ require(['widget!' + widget, 'Ractive'], function(widget, Ractive){
       }
   });
   
-  ractive.set('mocks', widget.mocks());
+  ractive.set('mocks', widget.mocks().map(function(m){
+    return $.extend(true, {active: true}, m)
+  }));
   if (localStorage.getItem('mocks')) { ractive.set('saved',true); }
 
   ractive.on({
@@ -180,6 +182,7 @@ require(['widget!' + widget, 'Ractive'], function(widget, Ractive){
         this.get('response')
       ];
       mocks.push({
+        active: true,
         method: this.get('method'),
         url: this.get('url'),
         response: response
@@ -194,7 +197,7 @@ require(['widget!' + widget, 'Ractive'], function(widget, Ractive){
       var mocks = this.get('mocks');
       widget.clear();
       mocks.forEach(function(m){
-        widget.mock(m);
+        if (m.active) { widget.mock(m); }
       })
       widget.restart();
       this.set('dirty', false);
@@ -210,6 +213,9 @@ require(['widget!' + widget, 'Ractive'], function(widget, Ractive){
     clear: function(){
       localStorage.removeItem('mocks');
       this.set('saved',false);
+    },
+    toggle: function(evt){
+      this.set('dirty',true);
     }
   });
 
