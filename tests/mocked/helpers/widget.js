@@ -292,8 +292,14 @@ define(['require', 'server'], function(require, server){
       if (_cssStyleSheets.length > _styles.length) {
         _cssStyleSheets.forEach(function(sheet){
           var style = document.createElement('style');
-          style.innerHTML = sheet.content;
-          document.head.appendChild(style);
+          style.type = 'text/css';
+          if (style.styleSheet) {
+            style.styleSheet.cssText = sheet.content;
+          } else {
+            style.appendChild(document.createTextNode(sheet.content));
+          }
+          var head = document.head || document.getElementsByTagName('head')[0];
+          head.appendChild(style);
           _styles.push(style);
         })
       }
@@ -302,6 +308,7 @@ define(['require', 'server'], function(require, server){
     var ctxt = this,
         args = arguments;
     _jsScripts.forEach(function(js) {
+      var mod = js.content;
       _widgetObjects.push(js.content.apply(ctxt, args));
     })
 
@@ -322,7 +329,7 @@ define(['require', 'server'], function(require, server){
       _styles = [];
     }
     _widgetObjects.forEach(function(widget){
-      if (widget.delete) {
+      if (widget && widget.delete) {
         widget.delete();
       }
     })
