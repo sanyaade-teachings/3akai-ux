@@ -160,7 +160,8 @@ define(['require', 'server'], function(require, server){
       _jsScripts = [],       // Any external JavaScript files referenced by the template
       _jsFiles = [],         // External JavaScript files as raw files
       _container,            // Inserted `<div>` element to hold widget contents
-      _styles = [];          // Inserted styles
+      _styles = [],          // Inserted styles
+      _widgetObjects = [];   // Objects returned when widget created
 
   // `$.Deferred()` objects we use to track asynchronous loading
   var _manifestLoading,
@@ -292,14 +293,16 @@ define(['require', 'server'], function(require, server){
         _cssStyleSheets.forEach(function(sheet){
           var style = document.createElement('style');
           style.innerHTML = sheet.content;
-          document.body.appendChild(style);
+          document.head.appendChild(style);
           _styles.push(style);
         })
       }
     }
     
+    var ctxt = this,
+        args = arguments;
     _jsScripts.forEach(function(js) {
-      js.content();
+      _widgetObjects.push(js.content.apply(ctxt, args));
     })
 
   }
@@ -316,8 +319,13 @@ define(['require', 'server'], function(require, server){
       _styles.forEach(function(style){
         style.parentNode.removeChild(style);
       })
-      _styles = [];      
+      _styles = [];
     }
+    _widgetObjects.forEach(function(widget){
+      if (widget.delete) {
+        widget.delete();
+      }
+    })
   }
 
   // Steps to handle widget loading and setup, in order
