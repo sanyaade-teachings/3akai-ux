@@ -16,22 +16,39 @@
       <div class='well well-large' id='dev-controls'></div>
     </div>
     <script id='template' type='text/ractive'>
-        <h3>API Mocks:
+        <h3>Configuration:
           <span class='pull-right' style='display:inline-block; vertical-align:bottom'>
-            <button on-click='store' class='btn btn-small' title='Save Mocks to Local Storage'>
+            <button on-click='store' class='btn btn-small' title='Save Configuration to Local Storage'>
               <i class='icon-download-alt' style='font-size:1.2em;'></i>
             </button>
             {{#saved}}
-            <button on-click='load' class='btn btn-small' title='Load Mocks from Local Storage'>
+            <button on-click='load' class='btn btn-small' title='Load Configuration from Local Storage'>
               <i class='icon-upload-alt' style='font-size:1.2em;'></i>
             </button>
-            <button on-click='clear' class='btn btn-small' title='Clear Mocks in Local Storage'>
+            <button on-click='clear' class='btn btn-small' title='Clear Configuration in Local Storage'>
               <i class='icon-remove' style='font-size:1.2em;'></i>
             </button>
             {{/saved}}
             &nbsp;
           </span>
         </h3>
+        <h4>Widget Configuration</h4>
+          <form>
+            <div class="span6">
+              <label>showSettings:</label>
+              <textarea id='settings' rows='6' class='span6' value='{{JSON.stringify(showSettings)}}' on-change='changeConfig'></textarea>
+            </div>
+            <div class="span6">
+              <label>widgetData:</label>
+              <textarea id='data' rows='6' class='span6' value='{{JSON.stringify(widgetData)}}' on-change='changeConfig'></textarea>
+            </div>
+            <div class='clearfix'></div>
+            {{#newconfig}}
+              <button type='button' class='btn btn-primary' on-click='reload'>Reload Widget</button>
+              <em>(Changes do not go into effect until widget is reloaded.)</em>
+            {{/newconfig}}
+         </form>
+        <h4>API Mocks</h4>
         <table class='table'>
           <thead>
             <tr>

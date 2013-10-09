@@ -135,9 +135,6 @@ require(['widget!' + widget, 'Ractive'], function(widget, Ractive){
   // accessed easily from the console.
   window.w = widget;
 
-  // Load the widget into the page.
-  widget.load();
-
   var methods = ['GET', 'POST', 'PUT', 'DELETE'];
 
   // Create the model for managing the page interactions.
@@ -145,19 +142,29 @@ require(['widget!' + widget, 'Ractive'], function(widget, Ractive){
       el: 'dev-controls',
       template: '#template',
       data: {
+        showSettings: {},
+        widgetData: {},
         mocks: [],
         dirty: false,
         editing: false,
+        newconfig: false,
         methods: methods,
         method: methods[0],
         headers: '{"Content-Type":"application/json"}'
       }
   });
-  
+window.r = ractive;
   ractive.set('mocks', widget.mocks().map(function(m){
     return $.extend(true, {active: true}, m)
   }));
-  if (localStorage.getItem('mocks')) { ractive.set('saved',true); }
+  if (localStorage.getItem('mockdev')) { ractive.set('saved',true); }
+  
+  var loadWidget = function() {
+    // Load the widget into the page.
+    widget.load('widget-container', ractive.get('showSettings'), ractive.get('widgetData'));
+  }
+  
+  loadWidget();
 
   ractive.on({
     remove: function(evt){
@@ -193,6 +200,10 @@ require(['widget!' + widget, 'Ractive'], function(widget, Ractive){
         editing: false
       })
     },
+    reload: function(){
+      loadWidget();
+      this.set('newconfig', false);
+    },
     update: function(){
       var mocks = this.get('mocks');
       widget.clear();
@@ -203,23 +214,37 @@ require(['widget!' + widget, 'Ractive'], function(widget, Ractive){
       this.set('dirty', false);
     },
     store: function(){
-      localStorage.setItem('mocks',JSON.stringify(this.get('mocks')));
+      var config = {
+        mocks: this.get('mocks'),
+        showSettings: this.get('showSettings'),
+        widgetData: this.get('widgetData')
+      }
+      localStorage.setItem('mockdev',JSON.stringify(config));
       this.set('saved',true);
     },
     load: function(){
-      this.set('mocks',JSON.parse(localStorage.getItem('mocks')));
+      var config = JSON.parse(localStorage.getItem('mockdev'));
+      this.set('mocks',config.mocks);
+      this.set('showSettings',config.showSettings);
+      this.set('widgetData',config.widgetData);
       this.set('dirty',true);
+      this.set('newconfig',true);
     },
     clear: function(){
-      localStorage.removeItem('mocks');
+      localStorage.removeItem('mockdev');
       this.set('saved',false);
     },
     toggle: function(evt){
       this.set('dirty',true);
+    },
+    changeConfig: function(evt){
+      this.set('showSettings', JSON.parse($('#settings').val()));
+      this.set('widgetData', JSON.parse($('#data').val()));
+      this.set('newconfig',true);
     }
   });
 
   $('#reload').on('click', function(){
-    widget.load();
+    loadWidget();
   })
 });
