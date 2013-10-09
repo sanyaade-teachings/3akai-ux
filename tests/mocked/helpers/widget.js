@@ -79,7 +79,7 @@
 //   or a function. See [SinonJS documentation](http://sinonjs.org/docs/)
 //   for details.
 //
-// The method returns the widget object so that it may be chained
+// The method returns the widget object so that it may be chained.
 //
 // The second method is `.clear()`, which deletes any previously
 // added mocks. It should be called to reset the mocking server to
@@ -108,6 +108,9 @@
 // After executing the code above, the server will be prepared
 // to respond to the indicated API requests with the defined
 // data.
+//
+// Finally, the `.default()` method restores the server to its
+// default setting.
 //
 // The `.mocks()` method returns an array of existing mocks.
 //
@@ -335,6 +338,17 @@ define(['require', 'server'], function(require, server){
     })
   }
 
+  var _defaultMocks = function() {
+    // The (currently) commented-out line below is only
+    // needed for running tests from the local file
+    // system. See `.getMacro()` above for details.
+    server
+      .user('basic')
+//      .mock({ method: 'GET', url: MACRO_REGEXP, response: _getMacro })
+      .start();
+    
+  }
+
   // Steps to handle widget loading and setup, in order
   // --------------------------------------------------
   
@@ -348,15 +362,7 @@ define(['require', 'server'], function(require, server){
     // API calls. If we're not ready to mock those calls,
     // they'll fail, and our widget test code won't be
     // happy.
-    //
-    // The (currently) commented-out line below is only
-    // needed for running tests from the local file
-    // system. See `.getMacro()` above for details.
-    server
-      .user('basic')
-//      .mock({ method: 'GET', url: MACRO_REGEXP, response: _getMacro })
-      .start();
-
+    _defaultMocks();
     // Now that's in place, we can start loading the widget.
     _loadManifest();
   }
@@ -532,6 +538,7 @@ define(['require', 'server'], function(require, server){
       clear:   function()  { server.clear(); return this; },
       mock:    function(m) { server.mock(m); return this; },
       restart: function()  { server.start(); return this; },
+      default: function()  { _defaultMocks(); return this; },
       mocks:   function()  { return server.mocks(); },
       users:   function()  { return server.users(); },
       user:    function(u) {
