@@ -52,6 +52,9 @@
                                         content.resourceSubType === 'collabdoc'}
                                         <li><button class="oae-trigger-revisions"><i class="icon-undo"></i>__MSG__REVISIONS__</button></li>
                                     {/if}
+                                    {if content.assessmentsPermitted}
+                                        <li><button class="oae-trigger-assessments"><i class="icon-check"></i>__MSG__ASSESSMENTS__</button></li>
+                                    {/if}
                                     <li><button class="oae-trigger-deleteresource"><i class="icon-trash"></i>__MSG__DELETE__</button></li>
                                 </ul>
                             </div>

@@ -47,6 +47,8 @@ require(['jquery', 'underscore', 'oae.core'], function($, _, oae) {
             contentProfile = profile;
             // Set the browser title
             oae.api.util.setBrowserTitle(contentProfile.displayName);
+// STUBBED: Force assessments option
+            contentProfile.assessmentsPermitted = true;
             // Render the entity information and actions
             setUpClips();
             // Show the content preview
