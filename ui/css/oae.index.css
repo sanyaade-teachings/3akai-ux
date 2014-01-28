@@ -73,10 +73,6 @@
     padding: 0;
 }
 
-#index-container #index-video.index-video-mobile {
-    height: 130px;
-}
-
 #index-container #index-video #index-video-launch {
     position: absolute;
     opacity: 0.8;
@@ -126,5 +122,8 @@
 @media (max-width: 480px) {
     #index-container #index-slogan {
         font-size: 34px;
+    }
+    #index-container #index-video-container {
+        padding: 0;
     }
 }
