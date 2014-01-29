@@ -47,6 +47,26 @@
     padding: 0 30px 0 12px;
 }
 
+#index-container .index-search-container input#index-search-query:-moz-placeholder {
+    text-overflow: ellipsis;
+}
+
+#index-container .index-search-container input#index-search-query::-moz-placeholder {
+    text-overflow: ellipsis;
+}
+
+#index-container .index-search-container input#index-search-query:-ms-input-placeholder {
+    text-overflow: ellipsis;
+}
+
+#index-container .index-search-container input#index-search-query::-webkit-input-placeholder {
+    text-overflow: ellipsis;
+}
+
+#index-container .index-search-container input#index-search-query::input-placeholder {
+    text-overflow: ellipsis;
+}
+
 #index-container .index-search-container #index-search-icon {
     margin-left: -27px;
     margin-top: 1px;

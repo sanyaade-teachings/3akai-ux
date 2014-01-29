@@ -23,6 +23,13 @@ require(['jquery','oae.core'], function($, oae) {
      * redirected to the search page using the entered search query
      */
     var setUpSearch = function() {
+        // If there's room, make the placeholder more descriptive. Since
+        // this is just an option, no need to adjust if window resizes.
+        if ($(window).width() > 480) {
+            var $input = $('#index-search-query');
+            $input.attr('placeholder', $input.attr('title'));
+        }
+
         $(document).on('submit', '#index-search-form', function() {
             var query = $.trim($('#index-search-query', $(this)).val());
             window.location = '/search/' + oae.api.util.security().encodeForURL(query);
