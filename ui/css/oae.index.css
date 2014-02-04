@@ -94,7 +94,24 @@
 }
 
 #index-container #index-video.index-video-mobile {
-    height: 130px;
+    height: 0;
+    padding: 0;
+	padding-bottom: 56.25%; /* 16:9 */
+    position: relative;
+    -webkit-border-radius: 0;
+       -moz-border-radius: 0;
+            border-radius: 0;
+    -webkit-box-shadow: none;
+       -moz-box-shadow: none;
+            box-shadow: none;
+}
+
+#index-container #index-video.index-video-mobile iframe {
+    height: 100%;
+    left: 0;
+    position: absolute;
+	top: 0;
+	width: 100%;
 }
 
 #index-container #index-video #index-video-launch {
@@ -144,6 +161,9 @@
 }
 
 @media (max-width: 480px) {
+    #index-container #index-video-container {
+        padding: 0;
+    }
     #index-container #index-content {
         text-align: center;
     }
