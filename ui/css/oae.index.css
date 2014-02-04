@@ -175,10 +175,13 @@
         font-size: 16px;
         padding: 0 5px;
     }
+    #index-container .index-bottom .index-bottom-description {
+        margin-top: 15px;
+    }
     #index-container .index-bottom i {
         display: block;
         font-size: 40px;
-        line-height: 1.2em;
+        line-height: 1.5em;
         width: 100%;
     }
 }
