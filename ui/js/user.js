@@ -199,6 +199,9 @@ require(['jquery', 'oae.core'], function($, oae) {
                 );
                 $('#user-follow-actions').detach();
                 $('li.user-follow').detach();
+
+                // Let other widgets know action is complete
+                $(document).trigger("oae.action.done")
             } else {
                 // Show an error notification
                 oae.api.util.notification(
